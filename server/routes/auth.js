@@ -2,23 +2,29 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const User = require('../models/User');
 const auth = require('../middleware/auth');
 
 // Email validation function
 const isValidCollegeEmail = (email) => {
-  return email && typeof email === 'string' && email.toLowerCase().endsWith('@iiitm.ac.in');
+  return email && typeof email === 'string' && email.toLowerCase().endsWith('@collegeitm.ac.in');
 };
 
 // Signup
 router.post('/signup', async (req, res) => {
-  console.log('Signup request body:', req.body); // Debug log
+  console.log('Signup request body:', req.body);
+  if (!req.body) {
+    return res.status(400).json({ msg: 'Request body is missing' });
+  }
   const { email, password, name, collegeId } = req.body;
 
   try {
-    // Validate email
+    // Validate inputs
+    if (!email || !password || !name || !collegeId) {
+      return res.status(400).json({ msg: 'All fields are required' });
+    }
     if (!isValidCollegeEmail(email)) {
-      return res.status(400).json({ msg: 'Email must end with @iiitm.ac.in' });
+      return res.status(400).json({ msg: 'Email must end with @collegeitm.ac.in' });
     }
 
     // Check for existing user
@@ -28,22 +34,29 @@ router.post('/signup', async (req, res) => {
     user = new User({ email, password, name, collegeId });
     await user.save();
 
+    // Generate JWT
     const payload = { userId: user._id };
     const token = jwt.sign(payload, 'your_jwt_secret_key_here', { expiresIn: '1h' });
     res.json({ token });
   } catch (err) {
-    console.log('Signup error:', err.message); // Debug log
+    console.log('Signup error:', err.message);
     res.status(500).json({ msg: 'Server error' });
   }
 });
 
 // Login
 router.post('/login', async (req, res) => {
-  console.log('Login request body:', req.body); // Debug log
+  console.log('Login request body:', req.body);
+  if (!req.body) {
+    return res.status(400).json({ msg: 'Request body is missing' });
+  }
   const { email, password } = req.body;
 
   try {
-    // Validate email
+    // Validate inputs
+    if (!email || !password) {
+      return res.status(400).json({ msg: 'Email and password are required' });
+    }
     if (!isValidCollegeEmail(email)) {
       return res.status(400).json({ msg: 'Email must end with @collegeitm.ac.in' });
     }
@@ -55,11 +68,12 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
+    // Generate JWT
     const payload = { userId: user._id };
     const token = jwt.sign(payload, 'your_jwt_secret_key_here', { expiresIn: '1h' });
     res.json({ token });
   } catch (err) {
-    console.log('Login error:', err.message); // Debug log
+    console.log('Login error:', err.message);
     res.status(500).json({ msg: 'Server error' });
   }
 });
