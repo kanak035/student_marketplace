@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket.io Test</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    input, button { margin: 5px; padding: 5px; }
+    ul { list-style: none; }
+    li { margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <h1>Socket.io Test</h1>
+  <input id="userId" placeholder="Your User ID">
+  <button onclick="joinRoom()">Join Room</button><br>
+  <input id="recipientId" placeholder="Recipient User ID">
+  <input id="message" placeholder="Message">
+  <button onclick="sendMessage()">Send Message</button>
+  <h3>Messages:</h3>
+  <ul id="messages"></ul>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io('http://localhost:5000');
+    socket.on('connect', () => {
+      console.log('Connected:', socket.id);
+      document.getElementById('messages').innerHTML += '<li>Connected to server</li>';
+    });
+    socket.on('receiveMessage', (msg) => {
+      const li = document.createElement('li');
+      li.textContent = `From ${msg.sender}: ${msg.content} (${new Date(msg.createdAt).toLocaleTimeString()})`;
+      document.getElementById('messages').appendChild(li);
+    });
+    function joinRoom() {
+      const userId = document.getElementById('userId').value;
+      if (!userId) return alert('Enter User ID');
+      socket.emit('join', userId);
+      document.getElementById('messages').innerHTML += `<li>Joined room ${userId}</li>`;
+    }
+    function sendMessage() {
+      const sender = document.getElementById('userId').value;
+      const recipient = document.getElementById('recipientId').value;
+      const content = document.getElementById('message').value;
+      if (!sender || !recipient || !content) return alert('Fill all fields');
+      socket.emit('sendMessage', { sender, recipient, content });
+      document.getElementById('message').value = '';
+    }
+  </script>
+</body>
+</html>
