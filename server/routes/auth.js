@@ -24,7 +24,7 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ msg: 'All fields are required' });
     }
     if (!isValidCollegeEmail(email)) {
-      return res.status(400).json({ msg: 'Email must end with @collegeitm.ac.in' });
+      return res.status(400).json({ msg: 'Email must end with @iiitm.ac.in' });
     }
 
     // Check for existing user
@@ -58,7 +58,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ msg: 'Email and password are required' });
     }
     if (!isValidCollegeEmail(email)) {
-      return res.status(400).json({ msg: 'Email must end with @collegeitm.ac.in' });
+      return res.status(400).json({ msg: 'Email must end with @iiitm.ac.in' });
     }
 
     // Check user
