@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/user.js');
 const auth = require('../middleware/auth');
 
 // Email validation function
 const isValidCollegeEmail = (email) => {
-  return email && typeof email === 'string' && email.toLowerCase().endsWith('@collegeitm.ac.in');
+  return email && typeof email === 'string' && email.toLowerCase().endsWith('@iiitm.ac.in');
 };
 
 // Signup
